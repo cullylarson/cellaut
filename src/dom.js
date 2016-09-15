@@ -14,15 +14,21 @@ export const gridToDom = curry((gridEl, grid) => {
 // fillGrid :: Element -> List -> (state)
 function fillGrid(gridEl, grid) {
     grid.forEach((gridRow, r) => {
-        gridRow.forEach((gridCell, c) => {
+        gridRow.forEach((gridCells, c) => {
             const cellEl = gridEl.getElementById(`cell-${r}-${c}`)
             if(!cellEl) return
 
             removeAllClasses(cellEl)
             addClass(cellEl, 'cell')
-            addClass(cellEl, gridCell.kind)
+            addClass(cellEl, getKindOfFirstCell(gridCells))
         })
     })
+}
+
+function getKindOfFirstCell(cells) {
+    return cells.size === 0
+        ? ''
+        : cells.get(0).kind
 }
 
 // createGrid :: Element -> List -> (state)
@@ -35,9 +41,9 @@ function createGrid(gridEl, grid) {
         row.setAttribute('id', `row-${r}`)
         gridEl.appendChild(row)
 
-        gridRow.forEach((gridCell, c) => {
+        gridRow.forEach((gridCells, c) => {
             const cell = document.createElement('div')
-            cell.setAttribute('class', `cell ${gridCell.kind}`)
+            cell.setAttribute('class', `cell ${getKindOfFirstCell(gridCells)}`)
             cell.setAttribute('id', `cell-${r}-${c}`)
 
             row.appendChild(cell)
