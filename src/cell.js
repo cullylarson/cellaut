@@ -1,8 +1,15 @@
-export default class {
-    constructor(kind) {
-        this.kind = kind
-        Object.freeze(this)
-    }
+export function Cell(kind) {
+    return {kind}
+}
 
-    isKind(someKind) { return this.kind === someKind }
+export function EmptyCell() {
+    return Cell('empty')
+}
+
+export function isKind(cell, cellKind) {
+    return cell.kind === cellKind
+}
+
+export function copyCell(cell) {
+    return {...cell}
 }

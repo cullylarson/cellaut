@@ -1,25 +1,25 @@
 import {List} from 'immutable'
 import narr from 'narr'
-import Cell from './cell'
+import {EmptyCell, isKind, copyCell} from './cell'
 import {randomInt} from './util'
 import {curry} from 'ramda'
 
 export function createGrid(numRows, numCols) {
     return narr(numRows).reduce(grid => {
         return grid.push(narr(numCols).reduce(row => {
-            return row.push(new Cell('empty'))
+            return row.push(EmptyCell())
         }, List()))
     }, List())
 }
 
-export const randomlyPlace = curry((numToPlace, cellKind, grid) => {
+export const randomlyPlace = curry((numToPlace, cellTemplate, grid) => {
     // not enough spaces
     if(getNumKind(grid, 'empty') < numToPlace) return grid
 
     return narr(numToPlace).reduce(gridAcc => {
         const emptySpace = getRandomSpaceKind(gridAcc, 'empty')
 
-        return gridAcc.set(emptySpace.r, gridAcc.get(emptySpace.r).set(emptySpace.c, new Cell(cellKind)))
+        return gridAcc.set(emptySpace.r, gridAcc.get(emptySpace.r).set(emptySpace.c, copyCell(cellTemplate)))
     }, grid)
 })
 
@@ -43,7 +43,7 @@ function getRandomSpace(grid) {
 function getNumKind(grid, cellKind) {
     grid.reduce((n, row) => {
         return row.reduce((n, cell) => {
-            return cell.isKind(cellKind)
+            return isKind(cell, cellKind)
                 ? n + 1
                 : n
         })
