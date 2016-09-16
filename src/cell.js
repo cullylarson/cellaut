@@ -5,7 +5,8 @@ export function Cell(kind) {
 }
 
 export function isKind(cell, cellKind) {
-    return cell.kind === cellKind
+    if(Array.isArray(cellKind)) return cellKind.includes(cell.kind)
+    else return cell.kind === cellKind
 }
 
 export function sameCell(cellA, cellB) {

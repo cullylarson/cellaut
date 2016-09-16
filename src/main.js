@@ -14,5 +14,6 @@ window.onload = () => {
 
     setInterval(() => {
         gridInterval = compose(gridToDom(main), iterateGrid)(gridInterval)
+        console.log(gridInterval.toJS()) // stub
     }, 1000)
 }
