@@ -1,6 +1,6 @@
 import {curry} from 'ramda'
 
-// gridToDom :: Element -> List -> (state)
+// gridToDom :: Element -> List -> (state) -> List
 export const gridToDom = curry((gridEl, grid) => {
     // the grid doesn't exist yet
     if(!gridEl.querySelectorAll('.cell').length) {
@@ -9,26 +9,28 @@ export const gridToDom = curry((gridEl, grid) => {
     else {
         fillGrid(gridEl, grid)
     }
+
+    return grid
 })
 
 // fillGrid :: Element -> List -> (state)
 function fillGrid(gridEl, grid) {
     grid.forEach((gridRow, r) => {
         gridRow.forEach((gridCells, c) => {
-            const cellEl = gridEl.getElementById(`cell-${r}-${c}`)
+            const cellEl = document.getElementById(`cell-${r}-${c}`)
             if(!cellEl) return
 
             removeAllClasses(cellEl)
             addClass(cellEl, 'cell')
-            addClass(cellEl, getKindOfFirstCell(gridCells))
+            addClass(cellEl, getClassFromCells(gridCells))
         })
     })
 }
 
-function getKindOfFirstCell(cells) {
-    return cells.size === 0
-        ? ''
-        : cells.get(0).kind
+function getClassFromCells(cells) {
+    if(cells.size === 0) return 'empty'
+    else if(cells.size === 1) return cells.get(0).kind
+    else return 'mixed'
 }
 
 // createGrid :: Element -> List -> (state)
@@ -43,7 +45,7 @@ function createGrid(gridEl, grid) {
 
         gridRow.forEach((gridCells, c) => {
             const cell = document.createElement('div')
-            cell.setAttribute('class', `cell ${getKindOfFirstCell(gridCells)}`)
+            cell.setAttribute('class', `cell ${getClassFromCells(gridCells)}`)
             cell.setAttribute('id', `cell-${r}-${c}`)
 
             row.appendChild(cell)

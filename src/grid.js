@@ -1,28 +1,29 @@
 import {List} from 'immutable'
 import narr from 'narr'
-import {EmptyCell, isKind, copyCell} from './cell'
+import {isKind, copyCell} from './cell'
 import {randomInt} from './util'
 import {curry} from 'ramda'
 
 export function createGrid(numRows, numCols) {
     return narr(numRows).reduce(grid => {
         return grid.push(narr(numCols).reduce(row => {
-            return row.push(List([EmptyCell()]))
+            return row.push(List())
         }, List()))
     }, List())
 }
 
 export const randomlyPlace = curry((numToPlace, cellTemplate, grid) => {
     // not enough spaces
-    if(getNumKind(grid, 'empty') < numToPlace) return grid
+    if(getNumEmpty(grid) < numToPlace) return grid
 
     return narr(numToPlace).reduce(gridAcc => {
-        const emptySpace = getRandomSpaceKind(gridAcc, 'empty')
+        const emptySpace = getRandomEmptySpace(gridAcc)
 
         return gridAcc.set(emptySpace.r, gridAcc.get(emptySpace.r).set(emptySpace.c, List([copyCell(cellTemplate)])))
     }, grid)
 })
 
+/*
 function getRandomSpaceKind(grid, cellKind) {
     const space = getRandomSpace(grid)
 
@@ -32,8 +33,19 @@ function getRandomSpaceKind(grid, cellKind) {
         // keep looking
         : getRandomSpaceKind(grid, cellKind)
 }
+*/
 
-function spaceHasKind(cells, cellKind) {
+function getRandomEmptySpace(grid) {
+    const space = getRandomSpace(grid)
+
+    return grid.get(space.r).get(space.c).size === 0
+        // found an empty space
+        ? space
+        // keep looking
+        : getRandomEmptySpace(grid)
+}
+
+export function spaceHasKind(cells, cellKind) {
     return cells.reduce((found, cell) => {
         if(found) return true
 
@@ -48,10 +60,10 @@ function getRandomSpace(grid) {
     return {r, c}
 }
 
-function getNumKind(grid, cellKind) {
+function getNumEmpty(grid) {
     grid.reduce((n, row) => {
         return row.reduce((n, cells) => {
-            return spaceHasKind(cells, cellKind)
+            return cells.size === 0
                 ? n + 1
                 : n
         })
